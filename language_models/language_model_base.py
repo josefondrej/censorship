@@ -18,10 +18,5 @@ class LanguageModelBase(object):
         raise NotImplementedError("Has to be overriden.")
 
     def predict(self, text: str) -> Dict[str, float]:
-        # import numpy as np
-        # from utils import softmax
-        # n = len(self.vocabulary)
-        # probas = softmax(np.random.randn(n))
-        # predictions = dict(zip(self.vocabulary, probas))
-        # return predictions
+        """ Returns {word: log-proba of word given text} """
         raise NotImplementedError("Has to be overriden.")

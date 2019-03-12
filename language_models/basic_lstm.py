@@ -24,15 +24,18 @@ class BasicLSTM(InMemoryModel):
 
         tokens = np.array(tokens)[-self._seq_length:].reshape(-1, self._seq_length)
         probas = self._model.predict(tokens)[0]  # peel off batch dim
-        prediction = {self._index_to_word.get(i): probas[i] for i in range(self.vocab_len)}
+        prediction = {self._index_to_word.get(i): np.log(probas[i]) for i in range(self.vocab_len)}
         return prediction
 
-    def train(self, batch_size: int = 256, epochs: int = 50):
+    def train(self, batch_size: int = 256, epochs: int = 50, verbose: int = 0):
+        print("[BasicLSTM] language model training")
         self._init_tokenizer()
         self._contexts, self._target_words_one_hot = self._prepare_training_data(self.tokenized_corpus)
         self._model = self._build_model()
         self._model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-        self._model.fit(self._contexts, self._target_words_one_hot, batch_size=batch_size, epochs=epochs)
+        self._model.fit(self._contexts, self._target_words_one_hot, batch_size=batch_size, epochs=epochs,
+                        verbose=verbose)
+        print("\t --done")
 
     def save_model(self, name: str = "test", model_directory: str = utils.MODEL_DIRECTORY):
         model_file_path, tokenizer_file_path = self._get_paths(name, model_directory)
@@ -51,8 +54,9 @@ class BasicLSTM(InMemoryModel):
 
     def _init_tokenizer(self):
         self._tokenizer = Tokenizer()
-        self._tokenizer.fit_on_texts(self._tokenized_corpus)
+        self._tokenizer.fit_on_texts(self._tokenized_corpus, )
         self._index_to_word = dict(map(reversed, self._tokenizer.word_index.items()))
+        self._index_to_word[self._tokenizer.word_index["eos"]] = str.strip(utils.EOS)  # todo: do this properly
 
     def _prepare_training_data(self, tokenized_corpus: List[str]) -> Tuple[np.ndarray, np.ndarray]:
         tokenized_corpus = self._tokenizer.texts_to_sequences(tokenized_corpus)
@@ -90,7 +94,7 @@ if __name__ == "__main__":
     basic_lstm = BasicLSTM("./data/grimm.txt")
 
     print(f"Vocabulary length: {basic_lstm.vocab_len}")
-    print(f"Vocabulary example: {list(basic_lstm.vocabulary)[0:500]}")
+    print(f"Vocabulary example: {list(basic_lstm.vocabulary)[0:50]}")
 
     basic_lstm.train(epochs=100)
     prediction = basic_lstm.predict(seed_text)
