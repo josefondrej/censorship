@@ -18,7 +18,7 @@ class BasicLSTM(InMemoryModel):
     def predict(self, text: str) -> Dict[str, float]:
         corpus = self._clean_corpus(text)
         tokenized_corpus = self._tokenize_corpus(corpus)
-        tokens = self._tokenizer.texts_to_sequences(tokenized_corpus)
+        tokens = utils.flatten(self._tokenizer.texts_to_sequences(tokenized_corpus))
         if len(tokens) < self._seq_length:
             raise ValueError(f"Seed text is too short. Has to be at least {self._seq_length} words.")
 
