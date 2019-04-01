@@ -127,3 +127,9 @@ dmypy.json
 
 # Trained Models
 trained_models/
+
+# Model Data
+model_data/
+
+# Data
+data/
