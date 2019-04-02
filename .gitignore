@@ -133,3 +133,6 @@ model_data/
 
 # Data
 data/
+
+# Cortico api key
+preprocessing/learned_lemmatization_experiments/cortico_api_key.json
